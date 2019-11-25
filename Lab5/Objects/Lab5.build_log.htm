@@ -28,12 +28,14 @@ Project File Date:  11/18/2019
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Software\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
 compiling main.c...
-main.c(36): warning:  #167-D: argument of type "unsigned char *" is incompatible with parameter of type "char *restrict"
+main.c(40): warning:  #167-D: argument of type "unsigned char *" is incompatible with parameter of type "char *restrict"
   			sprintf(scoreStr,"%i",shotsHit);
-main.c: 1 warning, 0 errors
+main.c(60): warning:  #167-D: argument of type "unsigned char *" is incompatible with parameter of type "char *restrict"
+  			sprintf(shotsRemain,"%i",shotsLeft);
+main.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=14944 RO-data=6724 RW-data=5912 ZI-data=8920  
-".\Objects\Lab5.axf" - 0 Error(s), 1 Warning(s).
+Program Size: Code=14980 RO-data=6724 RW-data=5912 ZI-data=8920  
+".\Objects\Lab5.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -63,45 +65,45 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: Keil::Device:Startup:1.0.0
-      Source file:   Device\Source\system_LPC17xx.c
-      Include file:  RTE_Driver\Config\RTE_Device.h
-      Source file:   Device\Source\ARM\startup_LPC17xx.s
       Include file:  Device\Include\LPC17xx.h
+      Include file:  RTE_Driver\Config\RTE_Device.h
+      Source file:   Device\Source\system_LPC17xx.c
+      Source file:   Device\Source\ARM\startup_LPC17xx.s
 
    * Component: ARM::CMSIS:RTOS2:Keil RTX5:Source:5.3.0
-      Include file:  CMSIS\RTOS2\RTX\Config\RTX_Config.h
-      Source file:   CMSIS\RTOS2\RTX\Template\Events.c
-      Source file:   CMSIS\RTOS2\RTX\Template\MemPool.c
-      Source file:   CMSIS\RTOS2\RTX\Config\RTX_Config.c
-      Include file:  CMSIS\RTOS2\RTX\Include\rtx_os.h
-      Source file:   CMSIS\RTOS2\RTX\Template\main.c
-      Source file:   CMSIS\RTOS2\RTX\Template\svc_user.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_thread.c
-      Source file:   CMSIS\RTOS2\RTX\Template\Semaphore.c
       Source file:   CMSIS\RTOS2\RTX\Template\Thread.c
+      Source file:   CMSIS\RTOS2\RTX\Template\MemPool.c
       Source file:   CMSIS\RTOS2\RTX\Template\Timer.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_evflags.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_kernel.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_evr.c
-      Source file:   CMSIS\RTOS2\RTX\Source\ARM\irq_cm3.s
-      Source file:   CMSIS\RTOS2\RTX\Template\MsgQueue.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_semaphore.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_mempool.c
       Source file:   CMSIS\RTOS2\RTX\Source\rtx_delay.c
       Source file:   CMSIS\RTOS2\RTX\Source\rtx_timer.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_system.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_lib.c
-      Source file:   CMSIS\RTOS2\RTX\Template\Mutex.c
       Source file:   CMSIS\RTOS2\RTX\Source\rtx_memory.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_evr.c
       Source file:   CMSIS\RTOS2\RTX\Source\rtx_mutex.c
+      Source file:   CMSIS\RTOS2\RTX\Config\RTX_Config.c
+      Source file:   CMSIS\RTOS2\RTX\Template\Semaphore.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_thread.c
+      Source file:   CMSIS\RTOS2\RTX\Template\Events.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_mempool.c
       Source file:   CMSIS\RTOS2\RTX\Source\rtx_msgqueue.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_lib.c
+      Include file:  CMSIS\RTOS2\RTX\Include\rtx_os.h
+      Source file:   CMSIS\RTOS2\RTX\Template\svc_user.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_semaphore.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_system.c
+      Source file:   CMSIS\RTOS2\RTX\Template\Mutex.c
+      Source file:   CMSIS\RTOS2\RTX\Template\MsgQueue.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_evflags.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_kernel.c
+      Include file:  CMSIS\RTOS2\RTX\Config\RTX_Config.h
+      Source file:   CMSIS\RTOS2\RTX\Template\main.c
+      Source file:   CMSIS\RTOS2\RTX\Source\ARM\irq_cm3.s
       Source file:   CMSIS\RTOS2\Source\os_systick.c
 
    * Component: ARM::CMSIS:CORE:5.1.1
 
    * Component: ::CMSIS:RTOS2:2.1.2 (API)
       Include file:  CMSIS\RTOS2\Include\cmsis_os2.h
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

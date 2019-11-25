@@ -4,63 +4,74 @@
 #include "GLCD.h"
 #include "random.h"
 
-// MUTEXES
-// GLOBAL VARIABLES (E.G. SCORE (BOOL ARRAY OF SHOTS HIT?), BOOLEAN GAMEOVER, INT SHOTS REMAINING)
+// GLOBAL VARIABLES: crosshair offset to make 'center' of LCD (0,0)
 const int X_OFFSET = 150, Y_OFFSET = 120,HITBOX_SIZE = 10;
 int aimX, aimY, shotsLeft; // convention: (0,0) is middle of screen
-int targetX, targetY, prevTarX,prevTarY;
+int targetX, targetY, prevTarX,prevTarY; // target moves across screen, must erase previous location
+// tracking shots
 int shotsHit = 0;
+// graphics for crosshairs, red circle of target, and erasing their previous locations (black)
 unsigned short whiteBar[] = {White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White,White};
 unsigned short blackBar[] = {Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black,Black};
 unsigned short targetBMP[] = {Black,Black,Red,Red,Red,Black,Black,
-														Black, Red, Red,Red,Red, Red, Black,
+														Black,Red,Red,Red,Red,Red,Black,
 														Red,Red,Red,Red,Red,Red,Red,
 														Red,Red,Red,Red,Red,Red,Red,
 														Red,Red,Red,Red,Red,Red,Red,
-														Black, Red, Red,Red,Red, Red, Black,
+														Black,Red,Red,Red,Red,Red,Black,
 														Black,Black,Red,Red,Red,Black,Black};
 int hit = 0;
 int gameOver = 0;
-														
+	
 void lcd(void *args) {
+	// initialize LCD
 	unsigned char scoreStr[] = "";
+	unsigned char shotsRemain[] = "";
 	GLCD_Init();
 	GLCD_Clear(Black);
+	
 	while(1) {
 		if (gameOver == 1) {
 			GLCD_Clear(White);
-			gameOver++;
-		} else if (gameOver == 2) {
+			gameOver++; // move past this so game over screen doesn't keep updating - static end
+		} else if (gameOver == 2) { // game over screen
 			GLCD_DisplayString(3,5,1,(unsigned char *)"GAME OVER");
 			GLCD_DisplayString(5,5,1,(unsigned char *)"YOUR SCORE:");
 			sprintf(scoreStr,"%i",shotsHit);
 			GLCD_DisplayString(6,9,1,scoreStr);
 			osThreadExit();
 		} else {
+			// erase previous location of target
 			GLCD_Bitmap(prevTarX-1,prevTarY-1,10,10,(unsigned char *)blackBar);
-			if (!hit) {
+			if (!hit) { // draw target at new location if it's not yet hit
 				GLCD_Bitmap(targetX,targetY,7,7,(unsigned char *)targetBMP);
 			}
+			// update location vars
 			prevTarX = targetX;
 			prevTarY = targetY;
+			// draw new crosshair location, erase directly to its sides
 			GLCD_Bitmap(aimX+X_OFFSET,0,1,240,(unsigned char *)whiteBar);
 			GLCD_Bitmap(aimX+X_OFFSET+1,0,1,240,(unsigned char *)blackBar);
 			GLCD_Bitmap(aimX+X_OFFSET-1,0,1,240,(unsigned char *)blackBar);
 			GLCD_Bitmap(0,aimY+Y_OFFSET,300,1,(unsigned char *)whiteBar);
 			GLCD_Bitmap(0,aimY+Y_OFFSET+1,300,1,(unsigned char *)blackBar);
 			GLCD_Bitmap(0,aimY+Y_OFFSET-1,300,1,(unsigned char *)blackBar);
+			// display to user how many shots they have left
+			sprintf(shotsRemain,"%i",shotsLeft);
+			GLCD_DisplayString(0,0,1,shotsRemain);
 			osThreadYield();
 		}
 	}
 }
 
 void shots(void *args) {
+	// enable pushbutton and LEDs
 	LPC_GPIO1->FIODIR |= 0xB0000000;
-	LPC_GPIO2->FIODIR |= 0x0000007C; // enable pushbutton and LEDs
-	//LPC_GPIO2->FIOPIN &= ~0x0000007C;
+	LPC_GPIO2->FIODIR |= 0x0000007C;
 	while(1) {
-		if(!(LPC_GPIO2->FIOPIN & 0x00000400)) {
-			if (shotsLeft == 8) {
+		if(!(LPC_GPIO2->FIOPIN & 0x00000400)) { // if button pressed (user shoots)
+			// depending on which shot was taken, update LEDs - turn on if corresponding shot hit
+			if (shotsLeft == 8) { // top LED
 				shotsLeft--;
 				if (!hit && aimX + X_OFFSET <= targetX+HITBOX_SIZE && aimX + X_OFFSET >= targetX-HITBOX_SIZE && aimY + Y_OFFSET <= targetY+HITBOX_SIZE && aimY + Y_OFFSET>= targetY-HITBOX_SIZE) {
 					LPC_GPIO1->FIOSET |= 0x10000000;
@@ -109,26 +120,31 @@ void shots(void *args) {
 					hit = 1;
 					shotsHit++;
 				}
-			} else if (shotsLeft == 1) {
+			} else if (shotsLeft == 1) { // bottom LED
 				shotsLeft--;
 				if (!hit && aimX + X_OFFSET <= targetX+HITBOX_SIZE && aimX + X_OFFSET >= targetX-HITBOX_SIZE && aimY + Y_OFFSET <= targetY+HITBOX_SIZE && aimY + Y_OFFSET >= targetY-HITBOX_SIZE) {
 					LPC_GPIO2->FIOSET |= 0x00000040;
 					hit = 1;
 					shotsHit++;
 				}
-				gameOver = 1;
+				gameOver = 1; // game ends when no shots remain to be taken
 			}
 			while(!(LPC_GPIO2->FIOPIN & 0x00000400));
 		}
+		
+		// no longer need to update LEDs when game is over
 		if (gameOver > 0)
 			osThreadExit();
-		osDelay(osKernelGetTickFreq()/50);
+		
+		osDelay(osKernelGetTickFreq()/50); // doesn't need to update in perfect sync with LCD
 	}
 }
 
 void joystick(void *args) {
 	// activate joystick pins 20, 23-26
 	LPC_GPIO1->FIODIR &= ~0x079000000;
+	
+	// move crosshair centre co-ordinates depending on joystick position
 	while(1) {
 		if ((LPC_GPIO1->FIOPIN & 0x00800000) == 0)
 			aimY--;
@@ -138,13 +154,16 @@ void joystick(void *args) {
 			aimY++;
 		else if ((LPC_GPIO1->FIOPIN & 0x01000000) == 0)
 			aimX++;
+		
+		// crosshairs no longer move when game is over
 		if (gameOver > 0)
 			osThreadExit();
-		osDelay(osKernelGetTickFreq()/100);
+		
+		osDelay(osKernelGetTickFreq()/100); // determines speed of crosshairs
 	}
 }
 
-/*
+/* POSSIBLE IMPLEMENTATION INSTEAD OF JOYSTICK
 void IMU(void *args) {
 	// START IMU
 	while(1) {
@@ -156,19 +175,23 @@ void IMU(void *args) {
 
 void target(void *args) {
 	while (1) {
+		// re-initialize variables once the target goes offscreen
 		hit = 0;
 		targetX = 0;
-		targetY = 0+(uint16_t)(lfsr113() >> 25);
-		uint16_t endX = 300+(uint16_t)(lfsr113() >> 25);
-		uint16_t speedX = 0+(uint16_t)(lfsr113() >> 25);
-		uint16_t speedY = (0+(uint16_t)(lfsr113() >> 25))/2;
-		int count = 0;
-		for ( ; targetX < endX; targetX++) {
+		targetY = 0+(uint16_t)(lfsr113() >> 25); // randomize height
+		uint16_t endX = 300+(uint16_t)(lfsr113() >> 25); // randomize how far offscreen it goes - therefore randomizes respawn
+		uint16_t speedX = 0+(uint16_t)(lfsr113() >> 25); // randomize horizontal speed
+		uint16_t speedY = (0+(uint16_t)(lfsr113() >> 25))/2; // randomize vertical speed
+		
+		int count = 0; // keeps track of when y will change (targets primarily 'fly' horizontally)
+		for ( ; targetX < endX; targetX++) { // horizontal motion
 			count++;
-			if (count % speedY == 0)
+			if (count % speedY == 0) // count reaches multiple of speedY, change target height
 				targetY++;
-			osDelay(osKernelGetTickFreq()/speedX);
+			osDelay(osKernelGetTickFreq()/speedX/2); // randomized speed of target
 		}
+		
+		// no more targets when game ends
 		if (gameOver > 0)
 			osThreadExit();
 	}
